@@ -1,0 +1,20 @@
+services:
+  oech-postgres:
+    image: postgres:latest
+    container_name: oech-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: your_database_name
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+networks:
+  oech-network:
+    driver: bridge
