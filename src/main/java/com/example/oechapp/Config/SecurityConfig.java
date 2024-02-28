@@ -1,9 +1,17 @@
 package com.example.oechapp.Config;
 
+import com.example.oechapp.Entity.User;
 import com.example.oechapp.Repository.UserRepository;
+import com.example.oechapp.Security.CustomOAuth2UserService;
 import com.example.oechapp.Security.JwtAuthenticationFilter;
+import com.example.oechapp.Security.Oauth2UserImpl;
 import com.example.oechapp.Security.UserDetailsServiceImpl;
+import com.example.oechapp.Service.UserService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,13 +25,21 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -35,6 +51,7 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserRepository userRepository;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,15 +66,27 @@ public class SecurityConfig {
                 }))
 
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/swagger-ui/**","/v3/**", "/api/auth/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/swagger-ui/**","/v3/**", "/api/auth/**", "/oauth2/**", "/oauth/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
-                .oauth2Login(request -> request
-                        .loginPage("/oauth2/authorization/google")
+                .oauth2Login(oauth2 -> oauth2
+                        //.loginPage("/login")
+                        .userInfoEndpoint(customizer -> customizer.userService(oauth2UserService()))
+                        .successHandler(new AuthenticationSuccessHandler() {
+                                    @Override
+                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                                        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+
+                                        LoggerFactory.getLogger(this.getClass()).info(oauthUser.getName());
+                                        if (userRepository.findByEmail(oauthUser.getName()).isEmpty()) {
+                                            User user = new User();
+                                            user.setEmail(oauthUser.getName());
+                                            userRepository.save(user);
+                                        }
+                                    }
+                                })
                 )
-
-
 
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -82,5 +111,9 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
         return config.getAuthenticationManager();
+    }
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+        return new CustomOAuth2UserService();
     }
 }

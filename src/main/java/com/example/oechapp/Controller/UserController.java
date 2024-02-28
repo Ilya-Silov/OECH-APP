@@ -5,6 +5,7 @@ import com.example.oechapp.Entity.RequestDto.Mapper.UserMapper;
 import com.example.oechapp.Entity.User;
 import com.example.oechapp.Service.UserService;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +16,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
     public ResponseEntity<User> createUser(@RequestBody CreateUserRequest user) {
         User createdUser = userMapper.mapCreateUserRequestToUser(user);
-        createdUser.setPassword(passwordEncoder.encode(createdUser.getPassword()));
         createdUser = userService.createUser(createdUser);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }

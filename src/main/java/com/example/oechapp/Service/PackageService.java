@@ -1,7 +1,7 @@
 package com.example.oechapp.Service;
 
-import com.example.oechapp.Entity.PackageRatings;
-import com.example.oechapp.Entity.Tracking;
+import com.example.oechapp.Entity.*;
+import com.example.oechapp.Entity.Package;
 import com.example.oechapp.Repository.AddressRepository;
 import com.example.oechapp.Repository.PackageRaitingRepository;
 import com.example.oechapp.Repository.PackageRepository;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import com.example.oechapp.Entity.Package;
+
 import org.webjars.NotFoundException;
 
 
@@ -26,8 +26,19 @@ public class PackageService {
     private AddressRepository addressRepository;
     @Autowired
     private TrackingService trackingService;
+    private TransactionService transactionService;
 
     public Package createPackage(Package _package) {
+        User user = new User();
+        _package.setOwner(user);
+
+        double cost = getPackageCost(_package);
+        if (_package.getOwner().getBalance() - cost<0)
+        {
+            throw new IllegalArgumentException("Insufficient funds");
+        }
+        transactionService.debitBalance(cost, _package.getOwner().getId());
+
         addressRepository.save(_package.getOriginAddress());
         addressRepository.saveAll(_package.getDestinations());
 
@@ -82,5 +93,10 @@ public class PackageService {
 
     public void deletePackage(Long id) {
         packageRepository.deleteById(id);
+    }
+
+    private double getPackageCost(Package pck)
+    {
+        return (500 + (2500 * pck.getDestinations().size())) * 1.05;
     }
 }

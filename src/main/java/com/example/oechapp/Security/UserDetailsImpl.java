@@ -1,6 +1,10 @@
 package com.example.oechapp.Security;
 
 import com.example.oechapp.Entity.User;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,10 +20,10 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;
     }
 
-
-
-
-
+    @Setter
+    @Getter
+    @Enumerated(EnumType.STRING)
+    private Provider provider;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -60,3 +64,5 @@ public class UserDetailsImpl implements UserDetails {
         return true;
     }
 }
+
+
