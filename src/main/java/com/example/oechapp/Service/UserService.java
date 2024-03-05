@@ -4,11 +4,15 @@ import com.example.oechapp.Entity.User;
 import com.example.oechapp.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.webjars.NotFoundException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +22,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
+    private final FileStorageService fileStorageService;
 
 
     public User createUser(User user) {
@@ -43,6 +47,7 @@ public class UserService {
             existingUser.setEmail(newUser.getEmail());
             existingUser.setPassword(newUser.getPassword());
             existingUser.setBalance(newUser.getBalance());
+
             return userRepository.save(existingUser);
         } else {
             // Handle user not found
@@ -53,6 +58,13 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
+    public User uploadPhoto(Long userId, MultipartFile photo) throws IOException {
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setPhoto(fileStorageService.uploadPhoto(photo).orElse(user.getPhoto()));
+        return userRepository.save(user);
+    }
+
 
 }
 

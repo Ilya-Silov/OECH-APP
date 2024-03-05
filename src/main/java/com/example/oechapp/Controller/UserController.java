@@ -11,8 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -59,6 +62,20 @@ public class UserController {
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping("/{id}/avatar")
+    public ResponseEntity<User> udateAvatar(@PathVariable Long id, @RequestParam MultipartFile photo)
+    {
+        try {
+            return new ResponseEntity<>(userService.uploadPhoto(id, photo), HttpStatus.OK);
+        }
+        catch (NoSuchElementException ex)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

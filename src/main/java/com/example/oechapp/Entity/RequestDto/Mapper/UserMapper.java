@@ -16,6 +16,7 @@ public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "photo", ignore = true)
     User mapCreateUserRequestToUser(CreateUserRequest request);
 
 

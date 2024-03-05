@@ -25,4 +25,6 @@ public class User {
     private String password;
 
     private Double balance;
+
+    private String photo;
 }
