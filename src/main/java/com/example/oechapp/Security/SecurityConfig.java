@@ -1,45 +1,35 @@
-package com.example.oechapp.Config;
+package com.example.oechapp.Security;
 
-import com.example.oechapp.Entity.User;
 import com.example.oechapp.Repository.UserRepository;
-import com.example.oechapp.Security.CustomOAuth2UserService;
-import com.example.oechapp.Security.JwtAuthenticationFilter;
-import com.example.oechapp.Security.Oauth2UserImpl;
-import com.example.oechapp.Security.UserDetailsServiceImpl;
-import com.example.oechapp.Service.UserService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -52,6 +42,14 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserRepository userRepository;
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuer;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkSetUri;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -71,30 +69,24 @@ public class SecurityConfig {
                         .permitAll()
                         //.authenticated()
                 )
+                .oauth2Login(Customizer.withDefaults())
 
-                .oauth2Login(oauth2 -> oauth2
-                        //.loginPage("/login")
-                        .userInfoEndpoint(customizer -> customizer.userService(oauth2UserService()))
-                        .successHandler(new AuthenticationSuccessHandler() {
-                                    @Override
-                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                                        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-
-                                        LoggerFactory.getLogger(this.getClass()).info(oauthUser.getName());
-                                        if (userRepository.findByEmail(oauthUser.getName()).isEmpty()) {
-                                            User user = new User();
-                                            user.setEmail(oauthUser.getName());
-                                            userRepository.save(user);
-                                        }
-                                    }
-                                })
-                )
+                //.oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
 
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterAt(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    }
+
+
+
+
 
     @Bean
     public AuthenticationProvider authenticationProvider()
@@ -114,8 +106,34 @@ public class SecurityConfig {
             throws Exception {
         return config.getAuthenticationManager();
     }
-    @Bean
-    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
-        return new CustomOAuth2UserService();
-    }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// .oauth2Login(oauth2 -> oauth2
+//                        //.loginPage("/login")
+//                        .userInfoEndpoint(customizer -> customizer.userService(oauth2UserService()))
+//                        .successHandler(new AuthenticationSuccessHandler() {
+//                                    @Override
+//                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                                        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+//
+//                                        LoggerFactory.getLogger(this.getClass()).info(oauthUser.getName());
+//                                        if (userRepository.findByEmail(oauthUser.getName()).isEmpty()) {
+//                                            User user = new User();
+//                                            user.setEmail(oauthUser.getName());
+//                                            userRepository.save(user);
+//                                        }
+//                                    }
+//                                })
+//                )

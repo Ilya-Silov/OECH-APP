@@ -6,14 +6,16 @@ import com.example.oechapp.Entity.User;
 import com.example.oechapp.Service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -49,7 +51,15 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id, @AuthenticationPrincipal Principal auser) {
+        if (auser != null)
+        {
+            LoggerFactory.getLogger(this.getClass()).info(auser.getName());
+        }
+        else
+        {
+            LoggerFactory.getLogger(this.getClass()).info("пупупу");
+        }
         return userService.getUserById(id)
                 .map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -57,6 +67,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody CreateUserRequest user) {
+
         User updatedUser = userService.updateUser(id, userMapper.mapCreateUserRequestToUser(user));
         if (updatedUser != null) {
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
