@@ -95,12 +95,12 @@ public class SecurityConfig {
                         .permitAll()
                         //.authenticated()
                 )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
                 //.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))
 
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthenticationFilter, OAuth2AuthorizationCodeGrantFilter.class);
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }

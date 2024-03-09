@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -41,6 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String HEADER_NAME = "Authorization";
+
     private final JwtService jwtService;
     private final UserDetailsServiceImpl userDetailsService;
     private final UserRepository userRepository;
@@ -54,20 +56,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Получаем токен из заголовка
         var authHeader = request.getHeader(HEADER_NAME);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX) && !StringUtils.startsWith(authHeader, "Google ")) {
             filterChain.doFilter(request, response);
             return;
         }
         String jwt = authHeader.substring(BEARER_PREFIX.length());
 
-
         String email;
-        try {
-            email = jwtService.extractEmail(jwt);
-        } catch (UnsupportedJwtException ex)
+        if (authHeader.startsWith("Google "))
         {
-
-            //TODO: Если добваить новые провайдеры, то менять
+            jwt = authHeader.substring("Google ".length());
             JwtDecoder jwtDecoder = jwtDecoder(); // получаем настроенный JwtDecoder из контекста Spring
 
             try {
@@ -111,12 +109,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
-            //TODO: Конец фигни
-            filterChain.doFilter(request, response);
-            return;
         }
 
-
+        email = jwtService.extractEmail(jwt);
         if (StringUtils.isNotEmpty(email) && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService
                     .userDetailsService()
