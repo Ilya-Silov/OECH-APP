@@ -3,14 +3,18 @@ package com.example.oechapp.Controller;
 import com.example.oechapp.Entity.RequestDto.CreateUserRequest;
 import com.example.oechapp.Entity.RequestDto.Mapper.UserMapper;
 import com.example.oechapp.Entity.User;
+import com.example.oechapp.Security.UserDetailsImpl;
 import com.example.oechapp.Service.UserService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,10 +55,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id, @AuthenticationPrincipal Principal auser) {
-        if (auser != null)
+    public ResponseEntity<User> getUserById(@PathVariable Long id, Authentication auth) {
+        if (auth != null)
         {
-            LoggerFactory.getLogger(this.getClass()).info(auser.getName());
+            UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
+
+            LoggerFactory.getLogger(this.getClass()).info(auser.getUsername());
         }
         else
         {
@@ -77,7 +83,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/avatar")
-    public ResponseEntity<User> udateAvatar(@PathVariable Long id, @RequestParam MultipartFile photo)
+    public ResponseEntity<User> updateAvatar(@PathVariable Long id, @RequestParam MultipartFile photo)
     {
         try {
             return new ResponseEntity<>(userService.uploadPhoto(id, photo), HttpStatus.OK);

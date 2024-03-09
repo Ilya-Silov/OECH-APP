@@ -4,6 +4,7 @@ import com.example.oechapp.Security.UserDetailsImpl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,7 +32,7 @@ public class JwtService {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof UserDetailsImpl customUserDetails) {
             claims.put("id", customUserDetails.getId());
-            //claims.put("email", customUserDetails.getUsername());
+            claims.put("email", customUserDetails.getUsername());
             //claims.put("role", customUserDetails.getAuthorities());
         }
         return generateToken(claims, userDetails);
@@ -60,10 +61,13 @@ public class JwtService {
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
         return Jwts.builder().claims(extraClaims).subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + jwtLifetime))
+                .expiration(new Date(System.currentTimeMillis() + jwtLifetime* 1000L*60L))
                 .signWith(getSigningKey()).compact();
     }
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(jwtSigningKey.getBytes(StandardCharsets.UTF_8));
+        byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+
+        //return Keys.hmacShaKeyFor(jwtSigningKey.getBytes(StandardCharsets.UTF_8));
     }
 }
