@@ -4,6 +4,7 @@ import com.example.oechapp.Entity.User;
 import com.example.oechapp.Repository.UserRepository;
 import com.example.oechapp.Service.JwtService;
 import com.example.oechapp.Service.UserService;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.MalformedInputException;
 
 @Component
 @RequiredArgsConstructor
@@ -110,33 +112,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         }
+        try {
+            email = jwtService.extractEmail(jwt);
+            if (StringUtils.isNotEmpty(email) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService
+                        .userDetailsService()
+                        .loadUserByUsername(email);
 
-        email = jwtService.extractEmail(jwt);
-        if (StringUtils.isNotEmpty(email) && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService
-                    .userDetailsService()
-                    .loadUserByUsername(email);
+                // Если токен валиден, то аутентифицируем пользователя
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
 
-            // Если токен валиден, то аутентифицируем пользователя
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                context.setAuthentication(authToken);
-                SecurityContextHolder.setContext(context);
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    context.setAuthentication(authToken);
+                    SecurityContextHolder.setContext(context);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                }
             }
-            else
-            {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            }
+            filterChain.doFilter(request, response);
         }
-        filterChain.doFilter(request, response);
+        catch (MalformedJwtException ex)
+        {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
     }
 
 

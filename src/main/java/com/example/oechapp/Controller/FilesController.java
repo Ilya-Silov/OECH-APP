@@ -1,6 +1,7 @@
 package com.example.oechapp.Controller;
 
 import com.example.oechapp.Service.FileStorageService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,7 @@ import java.io.InputStream;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/files")
+@Hidden
 public class FilesController {
 
     private final FileStorageService fileStorageService;

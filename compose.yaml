@@ -1,4 +1,5 @@
 services:
+
   oech-postgres:
     image: postgres:latest
     container_name: oech-postgres
@@ -11,9 +12,22 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  oech-mongo:
+    image: mongo
+    container_name: oech-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: chat_service
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata6:/data/db
 
 volumes:
   postgres_data:
+  dbdata6:
 
 networks:
   oech-network:

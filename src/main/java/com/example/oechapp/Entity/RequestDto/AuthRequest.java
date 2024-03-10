@@ -3,7 +3,7 @@ package com.example.oechapp.Entity.RequestDto;
 import lombok.Data;
 
 @Data
-public class AuthDTO {
+public class AuthRequest {
     private String email;
     private String password;
 }
