@@ -24,6 +24,29 @@ services:
       - '27017:27017'
     volumes:
       - dbdata6:/data/db
+  oech-RabbitMQ:
+    image: rabbitmq:3-management-alpine
+    container_name: oech-RabbitMQ
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  oech-redis:
+    image: redis:latest
+    container_name: oech-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
 
 volumes:
   postgres_data:

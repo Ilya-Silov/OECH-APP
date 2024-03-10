@@ -1,6 +1,7 @@
 package com.example.oechapp.messanger.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.DefaultContentTypeResolver;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
@@ -16,33 +17,22 @@ import java.util.List;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Value("OECH.app.messanger.LINK_CHAT")
+    private  String _linkChat;
+    @Value("ECH.app.messanger.Topic")
+    private  String _topic;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker( "/user");
-        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker(_topic);
+        config.setApplicationDestinationPrefixes(_linkChat);
         config.setUserDestinationPrefix("/user");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry
-                .addEndpoint("/ws")
-                .setAllowedOriginPatterns("*")
+        registry.addEndpoint(_linkChat)
+                .setAllowedOrigins("*")
                 .withSockJS();
-        registry
-                .addEndpoint("/ws-noSock")
-                .setAllowedOriginPatterns("*");
-    }
-
-    @Override
-    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
-        DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();
-        resolver.setDefaultMimeType(MimeTypeUtils.APPLICATION_JSON);
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
-        converter.setObjectMapper(new ObjectMapper());
-        converter.setContentTypeResolver(resolver);
-        messageConverters.add(converter);
-        return false;
     }
 }

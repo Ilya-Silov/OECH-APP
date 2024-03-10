@@ -1,68 +1,32 @@
 package com.example.oechapp.messanger.controller;
 
 import com.example.oechapp.messanger.entity.ChatMessage;
-import com.example.oechapp.messanger.entity.ChatNotification;
+import com.example.oechapp.messanger.entity.dto.ChatMessageMapper;
+import com.example.oechapp.messanger.entity.dto.ChatMessageRequest;
 import com.example.oechapp.messanger.service.ChatMessageService;
-import com.example.oechapp.messanger.service.ChatRoomService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@Controller
+import java.net.http.HttpResponse;
+import java.util.List;
+
+@RestController
 @RequiredArgsConstructor
-public class ChatController {
+@RequestMapping("api//messages")
+public class MessageController {
+    private final ChatMessageService chatMessageService;
+    private final ChatMessageMapper chatMessageMapper;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-    @Autowired private ChatMessageService chatMessageService;
-    @Autowired private ChatRoomService chatRoomService;
+    @PostMapping
+    public ResponseEntity<ChatMessage> sendMessage(@RequestBody ChatMessageRequest message) {
 
-    @MessageMapping("/chat")
-    public void processMessage(@Payload ChatMessage chatMessage) throws JsonProcessingException {
-        var chatId = chatRoomService
-                .getChatId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true);
-        chatMessage.setChatId(chatId.get());
-
-        ObjectMapper om = new ObjectMapper();
-        om.registerModule(new JavaTimeModule());
-        ChatMessage saved = chatMessageService.save(chatMessage);
-        messagingTemplate.convertAndSendToUser(
-                chatMessage.getRecipientId(),"/queue/messages",
-                new ChatNotification(
-                        saved.getId(),
-                        saved.getSenderId(),
-                        saved.getSenderName()));
+        return new ResponseEntity<>(chatMessageService.save(chatMessageMapper.mapChatMessageRequestToChatMessage(message)), HttpStatus.OK);
     }
 
-    @GetMapping("/messages/{senderId}/{recipientId}/count")
-    public ResponseEntity<Long> countNewMessages(
-            @PathVariable String senderId,
-            @PathVariable String recipientId) {
-
-        return ResponseEntity
-                .ok(chatMessageService.countNewMessages(senderId, recipientId));
-    }
-
-    @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<?> findChatMessages ( @PathVariable String senderId,
-                                                @PathVariable String recipientId) {
-        return ResponseEntity
-                .ok(chatMessageService.findChatMessages(senderId, recipientId));
-    }
-
-    @GetMapping("/messages/{id}")
-    public ResponseEntity<?> findMessage ( @PathVariable String id) {
-        return ResponseEntity
-                .ok(chatMessageService.findById(id));
+    @GetMapping("/{}")
+    public List<ChatMessage> getMessages() {
+        ret
     }
 }

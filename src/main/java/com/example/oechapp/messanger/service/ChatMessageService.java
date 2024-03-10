@@ -3,7 +3,6 @@ package com.example.oechapp.messanger.service;
 
 import com.example.oechapp.messanger.entity.ChatMessage;
 import com.example.oechapp.messanger.entity.MessageStatus;
-import com.example.oechapp.messanger.exception.ResourceNotFoundException;
 import com.example.oechapp.messanger.repository.ChatMessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -11,8 +10,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 
 @Service
@@ -54,7 +56,7 @@ public class ChatMessageService {
                     return repository.save(chatMessage);
                 })
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("can't find message (" + id + ")"));
+                        new NotFoundException("can't find message (" + id + ")"));
     }
 
     public void updateStatuses(String senderId, String recipientId, MessageStatus status) {

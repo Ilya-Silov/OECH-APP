@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -22,13 +23,8 @@ import java.time.ZonedDateTime;
 public class ChatMessage {
     @Id
     private String id;
-    private String chatId;
-    private String senderId;
-    private String recipientId;
-    private String senderName;
-    private String recipientName;
-    private String content;
-    //@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") // Формат даты/времени
-    private String timestamp;
-    private MessageStatus status;
+    private String text;
+    private Long senderId;
+    private Date createDate;
+    private Long recipientId;
 }
