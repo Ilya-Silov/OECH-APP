@@ -13,7 +13,7 @@ services:
     networks:
       - oech-network
     ports:
-      - "5432:5432"
+      - "20856:5432"
 
   pgadmin:
     container_name: oech-pgadmin
