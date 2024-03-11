@@ -28,4 +28,7 @@ public class User {
     private Double balance = 0d;
 
     private String photo;
+
+    @Enumerated(EnumType.STRING)
+    private UserRoles role = UserRoles.USER;
 }

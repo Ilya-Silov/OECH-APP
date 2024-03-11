@@ -88,11 +88,11 @@ public class SecurityConfig {
                 }))
 
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/swagger-ui/**","/v3/**", "/api/auth/**", "/oauth2/**", "/oauth/**").permitAll()
-                        //.requestMatchers("/api/users/**").authenticated()
+                                .requestMatchers("/swagger-ui/**", "/v3/**", "/api/auth/**", "/oauth2/**", "/oauth/**").permitAll()
+                                //.requestMatchers("/api/package/**").authenticated()
 
-                        .anyRequest()
-                        .permitAll()
+                                .anyRequest()
+                                .permitAll()
                         //.authenticated()
                 )
                 .addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -105,20 +105,8 @@ public class SecurityConfig {
         return http.build();
     }
 
-
-// Теперь в фильтре
-//    @Bean
-//    public JwtDecoder jwtDecoder() {
-//        return NimbusJwtDecoder.withIssuerLocation(issuer).build();
-//    }
-
-
-
-
-
     @Bean
-    public AuthenticationProvider authenticationProvider()
-    {
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder());
         provider.setUserDetailsService(userDetailsService.userDetailsService());
@@ -129,6 +117,7 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
             throws Exception {
@@ -136,82 +125,15 @@ public class SecurityConfig {
     }
 
 
-
-
-// OAuth
-@Bean
-public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
-    return new CustomOAuth2UserService();
-}
+    // OAuth
+    @Bean
+    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
+        return new CustomOAuth2UserService();
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         return new JwtAuthenticationConverter();
     }
 
-//    private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-//        return new OAuth2UserService<OidcUserRequest, OidcUser>() {
-//            @Override
-//            public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
-//                userDetailsService.loadUserByUsername("123");
-//                return null;
-//            }
-//        };
-//    }
-
-//    @Bean
-//    public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
-//        OidcIdTokenDecoderFactory idTokenDecoderFactory = new OidcIdTokenDecoderFactory();
-//        idTokenDecoderFactory.setJwsAlgorithmResolver(clientRegistration -> MacAlgorithm.HS256);
-//        return idTokenDecoderFactory;
-//    }
-//
-//    @Bean
-//    public OAuth2AuthorizedClientManager authorizedClientManager(
-//            ClientRegistrationRepository clientRegistrationRepository,
-//            OAuth2AuthorizedClientRepository authorizedClientRepository) {
-//
-//        OAuth2AuthorizedClientProvider authorizedClientProvider =
-//                OAuth2AuthorizedClientProviderBuilder.builder()
-//                        .authorizationCode()
-//                        .refreshToken()
-//                        .clientCredentials()
-//                        .build();
-//
-//        DefaultOAuth2AuthorizedClientManager authorizedClientManager =
-//                new DefaultOAuth2AuthorizedClientManager(
-//                        clientRegistrationRepository, authorizedClientRepository);
-//        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
-//
-//        return authorizedClientManager;
-//    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-// .oauth2Login(oauth2 -> oauth2
-//                        //.loginPage("/login")
-//                        .userInfoEndpoint(customizer -> customizer.userService(oauth2UserService()))
-//                        .successHandler(new AuthenticationSuccessHandler() {
-//                                    @Override
-//                                    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//                                        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
-//
-//                                        LoggerFactory.getLogger(this.getClass()).info(oauthUser.getName());
-//                                        if (userRepository.findByEmail(oauthUser.getName()).isEmpty()) {
-//                                            User user = new User();
-//                                            user.setEmail(oauthUser.getName());
-//                                            userRepository.save(user);
-//                                        }
-//                                    }
-//                                })
-//                )

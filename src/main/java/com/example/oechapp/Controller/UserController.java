@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -48,24 +49,6 @@ public class UserController {
         createdUser = userService.createUser(createdUser);
         return new ResponseEntity<>(userResponseMapper.mapUserToUserResponse(createdUser), HttpStatus.CREATED);
     }
-    //TODO: убрать метод
-    @PostConstruct
-    private void fillUsers()
-    {
-        CreateUserRequest createUserRequest = new CreateUserRequest();
-        createUserRequest.setEmail("123");
-        createUserRequest.setFirstName("test1");
-        createUserRequest.setLastName("asd");
-        createUserRequest.setPassword("123");
-        createUser(createUserRequest);
-
-        createUserRequest = new CreateUserRequest();
-        createUserRequest.setEmail("1111");
-        createUserRequest.setFirstName("test2");
-        createUserRequest.setLastName("asd");
-        createUserRequest.setPassword("1111");
-        createUser(createUserRequest);
-    }
 
     @Operation(summary = "Получить всех пользователей", description = "Получает список всех пользователей.")
     @GetMapping
@@ -77,6 +60,7 @@ public class UserController {
     @Operation(summary = "Получить текущего пользователя", description = "Получает текущего аутентифицированного пользователя.")
     @GetMapping("/current")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<?> getCurrent(Authentication auth)
     {
         if (auth!= null && auth.isAuthenticated())
@@ -113,6 +97,7 @@ public class UserController {
     @Operation(summary = "Обновить данные пользователя", description = "Обновляет существующего пользователя. Для обновления требуется весь объект (все поля).")
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<UserResponse> updateUser(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Данные для обновления пользователя", required = true) @RequestBody CreateUserRequest user, Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User usera = userService.getUserByEmail(auser.getUsername()).get();
@@ -133,6 +118,7 @@ public class UserController {
     @Operation(summary = "Обновить аватар пользователя", description = "Обновляет аватар пользователя.")
     @PutMapping("/{id}/avatar")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<UserResponse> updateAvatar(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Фото пользователя", required = true) @RequestParam MultipartFile photo, Authentication auth)
     {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();

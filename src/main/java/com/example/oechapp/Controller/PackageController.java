@@ -12,6 +12,7 @@ import com.example.oechapp.Service.UserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,7 @@ public class PackageController {
     })
     @PostMapping
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<?> createPackage(@Parameter(description = "Данные для создания посылки", required = true) @RequestBody CreatePackageRequest _package, Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User user = userService.getUserByEmail(auser.getUsername()).get();
@@ -65,6 +67,7 @@ public class PackageController {
     @Operation(summary = "Получить все посылки пользователя", description = "Получает список всех посылок авторизованного пользователя.")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<List<Package>> getAllPackages(Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User user = userService.getUserByEmail(auser.getUsername()).get();
@@ -80,6 +83,7 @@ public class PackageController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<Package> getPackageById(@Parameter(description = "ID посылки", required = true) @PathVariable Long id, Authentication auth) {
         Optional<Package> pack = packageService.getPackageById(id);
 
@@ -96,6 +100,7 @@ public class PackageController {
     @Operation(summary = "Обновить посылку", description = "Обновляет существующую посылку с учётом новых данных. Для обновления требуется весь объект (все поля).")
     @PutMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<Package> updatePackage(@Parameter(description = "ID посылки", required = true) @PathVariable Long id, @Parameter(description = "Данные для обновления посылки", required = true) @RequestBody CreatePackageRequest pkg, Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User user = userService.getUserByEmail(auser.getUsername()).get();
@@ -115,6 +120,7 @@ public class PackageController {
     @Operation(summary = "Удалить посылку", description = "Удаляет существующую посылку на основе предоставленного ID.")
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<Void> deletePackage(@Parameter(description = "ID посылки", required = true) @PathVariable Long id, Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User user = userService.getUserByEmail(auser.getUsername()).get();
@@ -142,6 +148,7 @@ public class PackageController {
     })
     @PutMapping("/{id}/confirm")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<?> confirmPackage(@Parameter(description = "ID посылки", required = true) @PathVariable Long id, @Parameter(description = "Данные для подтверждения посылки", required = true) @RequestBody ConfirmPackageRequest pkg, Authentication auth) {
         try {
             UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();

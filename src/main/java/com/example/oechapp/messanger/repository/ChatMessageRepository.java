@@ -23,4 +23,5 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
             "AND m.status = :status " +
             "ORDER BY m.id")
     public List<ChatMessage> countMessagesBetweenUsersByStatus(@Param("senderId") Long senderId, @Param("recipientId") Long recipientId, @Param("status") MessageStatus status);
+
 }

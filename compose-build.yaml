@@ -31,18 +31,18 @@ services:
     networks:
       - oech-network
 
-#  oech-api:
-#    image: oech-api:1.0
-#    container_name: oech-api
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - oech-postgres
-#    networks:
-#      - oech-network
+  oech-api:
+    image: oech-api:1.0
+    container_name: oech-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - oech-postgres
+    networks:
+      - oech-network
 
 
 volumes:

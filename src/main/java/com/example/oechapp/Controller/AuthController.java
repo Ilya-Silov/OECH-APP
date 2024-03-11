@@ -4,6 +4,8 @@ import com.example.oechapp.Entity.RequestDto.AuthRequest;
 import com.example.oechapp.Entity.ResponseDTO.JWTAuthResponse;
 import com.example.oechapp.Service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +28,7 @@ public class AuthController {
 
     @Operation(summary = "Аутентификация", description = "Выполняет аутентификацию пользователя.")
     @PostMapping("/login")
-    public ResponseEntity<?> authorize(@RequestBody AuthRequest authDTO)
+    public ResponseEntity<JWTAuthResponse> authorize(@RequestBody AuthRequest authDTO)
     {
         JWTAuthResponse response =  authService.signIn(authDTO.getEmail(), authDTO.getPassword());
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class TransactionController {
     })
     @GetMapping("user/{userId}")
     @PreAuthorize("isAuthenticated()")
+    @SecurityRequirement(name = "JWT Token")
     public ResponseEntity<List<Transaction>> doTransaction(@Parameter(description = "Идентификатор пользователя", required = true) @RequestParam Long userId, Authentication auth) {
         UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
         User user = userService.getUserByEmail(auser.getUsername()).get();
