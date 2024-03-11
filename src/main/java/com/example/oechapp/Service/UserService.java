@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.webjars.NotFoundException;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -168,7 +167,7 @@ public class UserService {
             Optional<String> photopath = fileStorageService.uploadPhotoFromURL(url);
             return photopath.orElse(null);
         } catch (IOException io) {
-            logger.error("Не удалось загрузить фото - " + Arrays.toString(io.getStackTrace()));
+            logger.error("Не удалось загрузить фото - " + io.getMessage());
             return null;
         }
     }
