@@ -17,4 +17,4 @@ git clone "$REPO_URL" "$DEST_DIR"
 cd "$DEST_DIR" || exit
 
 # Запуск развертывания контейнеров с помощью docker-compose
-docker-compose -f "$COMPOSE_FILE" up -d
+docker compose -f "$COMPOSE_FILE" up -d

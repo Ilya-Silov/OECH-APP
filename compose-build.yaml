@@ -38,7 +38,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "70123:8080"
+      - "10123:8080"
     depends_on:
       - oech-postgres
     networks:
