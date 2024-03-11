@@ -2,7 +2,7 @@
 
 
 # URL репозитория на GitHub
-REPO_URL="https://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@github.com/Ilya-Silov/OECH-APP"
+REPO_URL="https://github.com/Ilya-Silov/OECH-APP"
 
 # Директория назначения
 DEST_DIR="./oech-app"
