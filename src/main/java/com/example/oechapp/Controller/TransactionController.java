@@ -2,7 +2,10 @@ package com.example.oechapp.Controller;
 
 import com.example.oechapp.Entity.RequestDto.ReplenishBalanceRequest;
 import com.example.oechapp.Entity.Transaction;
+import com.example.oechapp.Entity.User;
+import com.example.oechapp.Security.UserDetailsImpl;
 import com.example.oechapp.Service.TransactionService;
+import com.example.oechapp.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,15 +27,24 @@ import java.util.List;
 @Tag(name = "Transactions", description = "Контроллер для работы с транзакциями")
 public class TransactionController {
 
-    private TransactionService transactionService;
+    private final TransactionService transactionService;
+    private final UserService userService;
 
-    @Operation(summary = "Выполнить транзакцию для пользователя", description = "Получает список транзакций пользователя.")
+    @Operation(summary = "Получить транзакции пользователя", description = "Получает список транзакций пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Транзакции пользователя найдены"),
             @ApiResponse(responseCode = "404", description = "Транзакции пользователя не найдены")
     })
     @GetMapping("user/{userId}")
-    public ResponseEntity<List<Transaction>> doTransaction(@Parameter(description = "Идентификатор пользователя", required = true) @RequestParam Long userId) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<Transaction>> doTransaction(@Parameter(description = "Идентификатор пользователя", required = true) @RequestParam Long userId, Authentication auth) {
+        UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
+        User user = userService.getUserByEmail(auser.getUsername()).get();
+
+        if (!user.getId().equals(userId))
+        {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
 
         return new ResponseEntity<>(transactionService.getUsersTransactions(userId), HttpStatus.CREATED);
     }

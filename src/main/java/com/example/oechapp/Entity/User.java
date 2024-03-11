@@ -3,6 +3,7 @@ package com.example.oechapp.Entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "Users")
@@ -24,7 +25,7 @@ public class User {
 
     private String password;
 
-    private Double balance;
+    private Double balance = 0d;
 
     private String photo;
 }

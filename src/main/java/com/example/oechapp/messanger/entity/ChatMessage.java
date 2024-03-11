@@ -1,13 +1,15 @@
 package com.example.oechapp.messanger.entity;
 
+import com.example.oechapp.Entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.mongodb.core.mapping.Document;
+
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -19,12 +21,22 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document
+@Entity
 public class ChatMessage {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String text;
+    @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+    private OffsetDateTime createDate;
+//    @ManyToOne
+//    @JoinColumn(name = "sender_id")
     private Long senderId;
-    private Date createDate;
+
+//    @ManyToOne
+//    @JoinColumn(name = "recipient_id")
     private Long recipientId;
+
+    private MessageStatus status = MessageStatus.DELIVERED;
 }

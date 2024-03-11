@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ChatMessageRequest {
     private String text;
-    private String author;
-    private LocalDateTime createDate;
-    private Long chatId;
+    private Long senderId;
+    private Long recipientId;
 }

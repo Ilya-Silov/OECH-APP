@@ -26,16 +26,21 @@ public class PackageService {
     private AddressRepository addressRepository;
     @Autowired
     private TrackingService trackingService;
+    @Autowired
     private TransactionService transactionService;
 
+
+    public List<Package> getUsersPackages(User user)
+    {
+        return packageRepository.findAllByOwnerId(user.getId());
+    }
+
     public Package createPackage(Package _package) {
-        User user = new User();
-        _package.setOwner(user);
 
         double cost = getPackageCost(_package);
         if (_package.getOwner().getBalance() - cost<0)
         {
-            throw new IllegalArgumentException("Insufficient funds");
+            throw new IllegalArgumentException("Balance = " + _package.getOwner().getBalance() + ". Required - "  + cost);
         }
         transactionService.debitBalance(cost, _package.getOwner().getId());
 

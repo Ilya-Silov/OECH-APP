@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -75,12 +76,14 @@ public class UserController {
 
     @Operation(summary = "Получить текущего пользователя", description = "Получает текущего аутентифицированного пользователя.")
     @GetMapping("/current")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> getCurrent(Authentication auth)
     {
         if (auth!= null && auth.isAuthenticated())
         {
             UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
-            return new ResponseEntity<>(userService.getUserByEmail(auser.getUsername()).map(userResponseMapper::mapUserToUserResponse),HttpStatus.OK);
+            UserResponse userResponse = userService.getUserByEmail(auser.getUsername()).map(userResponseMapper::mapUserToUserResponse).get();
+            return new ResponseEntity<>(userResponse,HttpStatus.OK);
         }
         return new ResponseEntity<>("You are not authenticated", HttpStatus.BAD_REQUEST);
     }
@@ -109,7 +112,15 @@ public class UserController {
 
     @Operation(summary = "Обновить данные пользователя", description = "Обновляет существующего пользователя. Для обновления требуется весь объект (все поля).")
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Данные для обновления пользователя", required = true) @RequestBody CreateUserRequest user) {
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> updateUser(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Данные для обновления пользователя", required = true) @RequestBody CreateUserRequest user, Authentication auth) {
+        UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
+        User usera = userService.getUserByEmail(auser.getUsername()).get();
+
+        if (!id.equals(usera.getId()))
+        {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
 
         User updatedUser = userService.updateUser(id, userMapper.mapCreateUserRequestToUser(user));
         if (updatedUser != null) {
@@ -121,8 +132,17 @@ public class UserController {
 
     @Operation(summary = "Обновить аватар пользователя", description = "Обновляет аватар пользователя.")
     @PutMapping("/{id}/avatar")
-    public ResponseEntity<UserResponse> updateAvatar(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Фото пользователя", required = true) @RequestParam MultipartFile photo)
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserResponse> updateAvatar(@Parameter(description = "ID пользователя", required = true) @PathVariable Long id, @Parameter(description = "Фото пользователя", required = true) @RequestParam MultipartFile photo, Authentication auth)
     {
+        UserDetailsImpl auser = (UserDetailsImpl) auth.getPrincipal();
+        User usera = userService.getUserByEmail(auser.getUsername()).get();
+
+        if (!id.equals(usera.getId()))
+        {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
         try {
             return new ResponseEntity<>(userResponseMapper.mapUserToUserResponse(userService.uploadPhoto(id, photo)), HttpStatus.OK);
         }
