@@ -12,7 +12,7 @@
 
 ## pgadmin
 ### credits
-link `http://serverip:5000`
+link `http://serverip:5050`
 
 email `admin@admin.com`
 

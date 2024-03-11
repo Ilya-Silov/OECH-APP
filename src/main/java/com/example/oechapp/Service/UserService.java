@@ -168,6 +168,7 @@ public class UserService {
             return photopath.orElse(null);
         } catch (IOException io) {
             logger.error("Не удалось загрузить фото - " + io.getMessage());
+            io.printStackTrace();
             return null;
         }
     }

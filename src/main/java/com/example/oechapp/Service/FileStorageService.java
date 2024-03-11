@@ -1,6 +1,7 @@
 package com.example.oechapp.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -45,6 +46,7 @@ public class FileStorageService {
         if (url != null && !url.isEmpty()) {
             String filename = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + "_downloaded.jpg";
             URL imageUrl = new URL(url);
+
             Files.copy(imageUrl.openStream(), Paths.get(UPLOAD_DIRECTORY, filename));
             return Optional.of("/files/" + filename);
         }
