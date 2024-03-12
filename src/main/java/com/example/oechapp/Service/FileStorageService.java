@@ -40,7 +40,6 @@ public class FileStorageService {
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
-
     }
 
     public Resource getFile(String fileName)
