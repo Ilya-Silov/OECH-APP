@@ -34,7 +34,13 @@ public class SwaggerConfig {
     {
         return new OpenAPI()
                 .info(new Info().title("OECH API").version("1.0")
-                        .description("<h2>Авторизация</h2><p>Для авторизации в API используется JWT token.</p> <p><strong>Инструкция по авторизации методом API: </strong><br> 1) отправьте запрос по адресу /api/auth/login <br> 2) добавьте в заголовки запроса заголовок Authorization: Bearer 'token'.</p> <p><strong>Инструкция по авторизации методом OAuth Google: </strong><br> 1) реализуйте в приложении авторизацию через Google и сохраните id_token <br> 2) добавьте в заголовки запроса заголовок Authorization: Google 'token'</p> <h2>Расчёт стоимости посылки</h2> <p><strong>Instant Delivery</strong> = 500</p> <p>При создании посылки сумма сама списывается с баланса</p>")
+                        .description("<h2>Авторизация</h2><p>Для авторизации в API используется JWT token.</p> <p><strong>Инструкция по авторизации методом API: </strong><br> 1) отправьте запрос по адресу /api/auth/login <br> 2) добавьте в заголовки запроса заголовок Authorization: Bearer 'token'.</p> <p><strong>Инструкция по авторизации методом OAuth Google: </strong><br> 1) реализуйте в приложении авторизацию через Google и сохраните id_token <br> 2) добавьте в заголовки запроса заголовок Authorization: Google 'token'</p> <h2>Расчёт стоимости посылки</h2> <p><strong>Instant Delivery</strong> = 500</p> <p>При создании посылки сумма сама списывается с баланса</p>" +
+                                "<h2>WebSocket API (STOMP)</h2>\n" +
+                                "<p>Для обмена сообщениями можно использовать вебсокет:</p>\n" +
+                                "<h3>Эндпоинт</h3>\n" +
+                                "<p>Адрес сервера WebSocket: <code>ws://ip:port/ws</code></p>\n" +
+                                "<p>destination: <code>/app/sendMessage</code></p>\n" +
+                                "<p>topic: <code>/topic/messages</code></p>")
                 )
 
                 //.addSecurityItem(new SecurityRequirement().addList("JWT Token"))
