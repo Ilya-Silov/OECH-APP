@@ -49,7 +49,7 @@ public class FileStorageService {
 
     public Optional<String> uploadPhoto(MultipartFile file) throws IOException {
         if (file != null && !file.isEmpty()) {
-            String filename = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + "_" + file.getOriginalFilename();
+            String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
             Files.copy(file.getInputStream(), Paths.get(UPLOAD_DIRECTORY, filename));
             return Optional.of("/files/"+filename);
         }
@@ -57,7 +57,7 @@ public class FileStorageService {
     }
     public Optional<String> uploadPhotoFromURL(String url) throws IOException {
         if (url != null && !url.isEmpty()) {
-            String filename = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC) + "_downloaded.jpg";
+            String filename = System.currentTimeMillis() + "_downloaded.jpg";
             URL imageUrl = new URL(url);
 
             Files.copy(imageUrl.openStream(), Paths.get(UPLOAD_DIRECTORY, filename));
