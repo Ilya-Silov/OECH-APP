@@ -6,7 +6,6 @@ RUN mvn -f pom.xml clean package -DskipTests
 
 FROM openjdk:21-jdk-slim
 WORKDIR /app
-RUN mkdir /photos
 ARG JAR_FILE=/code/target/*.jar
 COPY --from=builder ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
