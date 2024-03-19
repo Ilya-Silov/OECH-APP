@@ -30,7 +30,7 @@ services:
       - oech-network
 
   oech-api:
-    image: oech-api:1.0
+    image: oech-api:1.1
     container_name: oech-api
     build:
       context: .
