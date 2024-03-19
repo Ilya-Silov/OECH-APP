@@ -2,10 +2,12 @@ package com.example.oechapp.Controller;
 
 import com.example.oechapp.Entity.RequestDto.CreateUserRequest;
 import com.example.oechapp.Entity.RequestDto.Mapper.UserMapper;
+import com.example.oechapp.Entity.RequestDto.PasswordResetRequest;
 import com.example.oechapp.Entity.ResponseDTO.UserResponse;
 import com.example.oechapp.Entity.ResponseDTO.mappers.UserResponseMapper;
 import com.example.oechapp.Entity.User;
 import com.example.oechapp.Security.UserDetailsImpl;
+import com.example.oechapp.Service.AuthService;
 import com.example.oechapp.Service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,6 +43,7 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
     private final UserResponseMapper userResponseMapper;
+    private final AuthService authService;
 
     @Operation(summary = "Создать пользователя", description = "Создает нового пользователя.")
     @PostMapping
@@ -146,4 +149,6 @@ public class UserController {
         userService.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }

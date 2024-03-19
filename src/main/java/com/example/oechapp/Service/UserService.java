@@ -79,6 +79,17 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User resetPassword(String email, String newPassword)
+    {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isEmpty())
+        {
+            throw new NotFoundException("User not found");
+        }
+
+        user.get().setPassword(passwordEncoder.encode(newPassword));
+        return userRepository.save(user.get());
+    }
 
 
 
