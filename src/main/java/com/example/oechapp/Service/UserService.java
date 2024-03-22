@@ -170,6 +170,22 @@ public class UserService {
         deliver5.setRole(UserRoles.DELIVER);
         deliver5.setPhoto(tryToLoadAvatar("https://s3-alpha-sig.figma.com/img/52cc/7536/9cd8ed6ea9f81e5687aabc51498950cf?Expires=1711324800&Key-Pair-Id=APKAQ4GOSFWCVNEHN3O4&Signature=bVVxcPHfhuyp3bZ~OV8lz9iV5QLDlaOCUqOfeTCbsikvcqPTYJILkGEzrmFzp-Poa75UbnR0-3pYMfS3Ec6d511VkB6ccD6hDiELyry90CJp8gDhnk6bMys322Rv670SPpAJ7gQAXKSgT4oh-GF49zTyNY3OaMe9qxOj3U8tmKEPaXFBTfmG3dPIzlEVtzsZQMfr7ytQBhwzgYfX~g8eFE559wZ0FSuJk5exFP5ElHrSJMOw3nLaW8-ctqv~LoHi3i9FVHFdMh9K5htYfP3RovI2WGsuSXwYQ2MgkIC9ABwYgaYViy-nIhNDQWwZ5t8FcfMCHS7sdOEzmHhGz~WAdQ__"));
         createUser(deliver5);
+
+        // Создание 6 аккаунтов
+        for (int i = 1; i <= 6; i++) {
+            String email = "user" + String.format("%02d", i) + "@user01.ru";
+            String password = String.format("%02d", i);
+
+            User user = new User();
+            user.setEmail(email);
+            user.setFirstName("User");
+            user.setLastName(String.format("%02d", i));
+            user.setPassword(password);
+            user.setRole(UserRoles.USER);
+            user.setPhoto("");
+
+            createUser(user);
+        }
     }
 
     private String tryToLoadAvatar(String url)
