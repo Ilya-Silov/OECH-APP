@@ -173,7 +173,7 @@ public class UserService {
 
         // Создание 6 аккаунтов
         for (int i = 1; i <= 6; i++) {
-            String email = "user" + String.format("%02d", i) + "@user01.ru";
+            String email = "user" + String.format("%02d", i) + "@user" + String.format("%02d", i) +  ".ru";
             String password = String.format("%02d", i);
 
             User user = new User();
